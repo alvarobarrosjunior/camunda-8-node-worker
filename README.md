@@ -71,8 +71,8 @@ npm run dev
 ```
 
 ## Tecnologias utilizadas 🛠 
-Node.js
-TypeScript
-Camunda 8
-Zeebe Client
-dotenv (para gerenciamento de variáveis de ambiente)
+* Node.js
+* TypeScript
+* Camunda 8
+* Zeebe Client
+* dotenv (para gerenciamento de variáveis de ambiente)
