@@ -1,4 +1,4 @@
-Camunda 8 Node Worker
+# Camunda 8 Node Worker
 Este projeto implementa um worker para o Camunda 8, utilizando Node.js para processar tarefas automatizadas em um fluxo de trabalho.
 
 📌 Requisitos
@@ -33,19 +33,19 @@ Para conectar o worker ao Camunda 8, crie um arquivo .env na raiz do projeto com
 ini
 Copiar
 Editar
-# Modo de operação
+## Modo de operação
 CAMUNDA_CLIENT_MODE=saas
 
-# Credenciais de autenticação (substitua pelos valores reais)
+## Credenciais de autenticação (substitua pelos valores reais)
 CAMUNDA_CLIENT_ID=SEU_CLIENT_ID
 CAMUNDA_CLIENT_SECRET=SEU_CLIENT_SECRET
 
-# Configuração do cluster
+## Configuração do cluster
 CAMUNDA_CLUSTER_ID=SEU_CLUSTER_ID
 CAMUNDA_REGION=SEU_REGION
 CAMUNDA_ZEEBE_ADDRESS=SEU_CLUSTER_ID.SEUREGION.zeebe.camunda.io:443
 
-# URL de autenticação do Zeebe
+## URL de autenticação do Zeebe
 CAMUNDA_OAUTH_URL=https://login.cloud.camunda.io/oauth/token
 CAMUNDA_ZEEBE_TOKEN_AUDIENCE=zeebe.camunda.io
 
