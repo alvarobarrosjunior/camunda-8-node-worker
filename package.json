@@ -13,7 +13,6 @@
   "license": "ISC",
   "dependencies": {
     "@camunda8/sdk": "^8.6.24",
-    "camunda-8-sdk": "^0.15.0",
     "dotenv": "^16.4.7",
     "typescript": "^5.7.3"
   }
