@@ -1,0 +1,20 @@
+{
+  "name": "c8-node-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "npx ts-node src/worker.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@camunda8/sdk": "^8.6.24",
+    "camunda-8-sdk": "^0.15.0",
+    "dotenv": "^16.4.7",
+    "typescript": "^5.7.3"
+  }
+}
