@@ -3,6 +3,7 @@ import { Camunda8 } from '@camunda8/sdk'
 
 // Importamos dotenv para cargar las variables de entorno desde un archivo .env
 import dotenv from 'dotenv';
+import {ErrorJobWithVariables} from "@camunda8/sdk/dist/zeebe/lib/interfaces-1.0";
 dotenv.config(); // Cargamos las variables de entorno
 
 // Creamos una instancia del cliente de Camunda 8 con la configuración de autenticación
@@ -42,10 +43,12 @@ client.createWorker({
             // Manejo de errores: verificamos si el error es una instancia de Error
             if (error instanceof Error) {
                 console.error('Error al procesar el pago:', error.message);
-                return job.error(error.message); // Retornamos el error con el mensaje específico
+                const errorJob: ErrorJobWithVariables = {variables: {errorMessage: error.message}, errorCode: "minPago"};
+                return job.error(errorJob); // Retornamos el error con el mensaje específico
             } else {
                 console.error('Error desconocido:', error);
-                return job.error('Error desconocido'); // Retornamos un mensaje genérico en caso de error desconocido
+                const errorJob: ErrorJobWithVariables = {variables: {errorMessage: 'Error desconocido'}, errorCode: "minPago"};
+                return job.error(errorJob); // Retornamos un mensaje genérico en caso de error desconocido
             }
         }
     },
