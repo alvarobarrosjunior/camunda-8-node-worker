@@ -3,7 +3,10 @@ import { Camunda8 } from '@camunda8/sdk'
 
 // Importamos dotenv para cargar las variables de entorno desde un archivo .env
 import dotenv from 'dotenv';
+
 import {ErrorJobWithVariables} from "@camunda8/sdk/dist/zeebe/lib/interfaces-1.0";
+import {ZeebeGrpcClient} from "@camunda8/sdk/dist/zeebe";
+
 dotenv.config(); // Cargamos las variables de entorno
 
 // Creamos una instancia del cliente de Camunda 8 con la configuración de autenticación
@@ -17,7 +20,7 @@ const C8 = new Camunda8({
 });
 
 // Obtenemos el cliente gRPC de Zeebe para interactuar con el motor de workflow
-const client = C8.getZeebeGrpcApiClient();
+const client: ZeebeGrpcClient = C8.getZeebeGrpcApiClient();
 
 console.log('Service Task Worker comenzó...'); // Mensaje indicando que el worker ha iniciado
 

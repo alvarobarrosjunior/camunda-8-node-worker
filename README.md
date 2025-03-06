@@ -31,10 +31,6 @@ yarn install
 Para conectar el worker a Camunda 8, crea un archivo .env en la raíz del proyecto con la siguiente información:
 
 ```
---Modo de operación
-
-CAMUNDA_CLIENT_MODE=saas
-
 --Credenciales de autenticación (sustituye por los valores reales)
 
 CAMUNDA_CLIENT_ID=TU_CLIENT_ID
