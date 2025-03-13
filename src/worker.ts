@@ -1,59 +1,60 @@
-// Importamos la librería oficial de Camunda 8 SDK para interactuar con Zeebe
-import { Camunda8 } from '@camunda8/sdk'
+import { Camunda8 } from '@camunda8/sdk';
+import { config } from './config';
+import { ErrorJobWithVariables } from '@camunda8/sdk/dist/zeebe/lib/interfaces-1.0';
+import { ZeebeGrpcClient } from '@camunda8/sdk/dist/zeebe';
 
-// Importamos dotenv para cargar las variables de entorno desde un archivo .env
-import dotenv from 'dotenv';
-
-import {ErrorJobWithVariables} from "@camunda8/sdk/dist/zeebe/lib/interfaces-1.0";
-import {ZeebeGrpcClient} from "@camunda8/sdk/dist/zeebe";
-
-dotenv.config(); // Cargamos las variables de entorno
-
-// Creamos una instancia del cliente de Camunda 8 con la configuración de autenticación
+// Crea una instancia del cliente Camunda8 utilizando la configuración exportada
 const C8 = new Camunda8({
-    ZEEBE_GRPC_ADDRESS: process.env.CAMUNDA_ZEEBE_ADDRESS, // Dirección del servidor Zeebe
-    ZEEBE_CLIENT_ID: process.env.CAMUNDA_CLIENT_ID, // ID del cliente para autenticación OAuth
-    ZEEBE_CLIENT_SECRET: process.env.CAMUNDA_CLIENT_SECRET, // Secreto del cliente OAuth
-    CAMUNDA_AUTH_STRATEGY: 'OAUTH', // Estrategia de autenticación: OAuth
-    CAMUNDA_OAUTH_URL: process.env.CAMUNDA_OAUTH_URL, // URL del servidor de autenticación OAuth
-    CAMUNDA_SECURE_CONNECTION: true, // Conexión segura habilitada
+    ZEEBE_GRPC_ADDRESS: config.ZEEBE_GRPC_ADDRESS, // Dirección del servidor gRPC de Zeebe
+    ZEEBE_CLIENT_ID: config.ZEEBE_CLIENT_ID, // ID del cliente para autenticación OAuth
+    ZEEBE_CLIENT_SECRET: config.ZEEBE_CLIENT_SECRET, // Secreto del cliente para autenticación OAuth
+    CAMUNDA_AUTH_STRATEGY: config.CAMUNDA_AUTH_STRATEGY, // Estrategia de autenticación utilizada (OAuth)
+    CAMUNDA_OAUTH_URL: config.CAMUNDA_OAUTH_URL, // URL del servidor OAuth de Camunda
+    CAMUNDA_SECURE_CONNECTION: config.CAMUNDA_SECURE_CONNECTION, // Indica si la conexión es segura (HTTPS)
 });
 
-// Obtenemos el cliente gRPC de Zeebe para interactuar con el motor de workflow
+// Obtiene el cliente gRPC de Zeebe a partir de la instancia de Camunda8
 const client: ZeebeGrpcClient = C8.getZeebeGrpcApiClient();
 
-console.log('Service Task Worker comenzó...'); // Mensaje indicando que el worker ha iniciado
+console.log('Service Task Worker comenzó...'); // Mensaje de inicio del worker
 
-// Creamos un worker (trabajador) para procesar tareas del tipo "procesarPago"
+// Define el tipo de tarea que el worker va a procesar
+const TASK_TYPE: string = 'procesarPago';
+// Define el monto mínimo de pago permitido
+const MIN_PAYMENT_AMOUNT: number = 100;
+// Define el código de error para pagos menores al mínimo permitido
+const ERROR_CODE: string = 'minPago';
+
+// Crea un worker que procesa tareas del tipo definido
 client.createWorker({
-    taskType: 'procesarPago', // Task Definition Job Type en BPMN que este worker manejará
-    taskHandler: async (job) => { // Función que maneja la ejecución de la tarea
+    taskType: TASK_TYPE, // Tipo de tarea que el worker va a procesar
+    taskHandler: async (job) => { // Función que maneja la tarea
         try {
-            console.log(`Procesando el pago de la instancia: ${job.processInstanceKey}`);
+            console.log(`Processando o pagamento da instância: ${job.processInstanceKey}`); // Log del inicio del procesamiento
 
-            // Extraemos las variables enviadas al worker desde el proceso BPMN
+            // Extrae las variables del trabajo
             const { amount, userId } = job.variables;
-            console.log(`Procesando pago de $${amount} para el usuario ${userId}`);
+            console.log(`Processando pagamento de $${amount} para o usuário ${userId}`); // Log del monto y usuario
 
-            // Validamos que el monto del pago sea mayor o igual a 100
-            if (Number(amount) < 100) {
-                throw new Error(`Monto del pago demasiado bajo: $${amount}. El mínimo es $100.`);
+            // Verifica si el monto del pago es menor al mínimo permitido
+            if (Number(amount) < MIN_PAYMENT_AMOUNT) {
+                throw new Error(`Montante do pagamento muito baixo: $${amount}. O mínimo é $${MIN_PAYMENT_AMOUNT}.`); // Lanza un error si el monto es muy bajo
             }
 
-            // Si todo está correcto, completamos la tarea con éxito
-            return job.complete({ status: 'Pago aprobado' });
+            // Completa el trabajo con un estado de aprobación
+            return job.complete({ status: 'Pagamento aprovado' });
         } catch (error) {
-            // Manejo de errores: verificamos si el error es una instancia de Error
             if (error instanceof Error) {
-                console.error('Error al procesar el pago:', error.message);
-                const errorJob: ErrorJobWithVariables = {variables: {errorMessage: error.message}, errorCode: "minPago"};
-                return job.error(errorJob); // Retornamos el error con el mensaje específico
+                console.error('Erro ao processar o pagamento:', error.message); // Log del error
+                // Crea un objeto de error con detalles del error y el código de error
+                const errorJob: ErrorJobWithVariables = { variables: { errorMessage: error.message }, errorCode: ERROR_CODE };
+                return job.error(errorJob); // Retorna el error del trabajo
             } else {
-                console.error('Error desconocido:', error);
-                const errorJob: ErrorJobWithVariables = {variables: {errorMessage: 'Error desconocido'}, errorCode: "minPago"};
-                return job.error(errorJob); // Retornamos un mensaje genérico en caso de error desconocido
+                console.error('Erro desconhecido:', error); // Log de un error desconocido
+                // Crea un objeto de error con un mensaje de error desconocido y el código de error
+                const errorJob: ErrorJobWithVariables = { variables: { errorMessage: 'Erro desconhecido' }, errorCode: ERROR_CODE };
+                return job.error(errorJob); // Retorna el error del trabajo
             }
         }
     },
 });
-
